@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        // Sets up our isolated virtual environment chamber on the cloud machine
+        // Defines where our isolated Python room lives on the cloud machine
         VENV_PATH = "${WORKSPACE}/venv"
     }
 
@@ -19,7 +19,10 @@ pipeline {
         stage('Test Suite') {
             steps {
                 echo 'Step 2: Executing testing framework configurations...'
-                sh "${VENV_PATH}/bin/pytest"
+                // Injecting a fake string mapping allows Pytest to successfully run code collection without crashing
+                withEnv(["MONGO_URI=mongodb://localhost:27017/testdb", "SECRET_KEY=testsecret"]) {
+                    sh "${VENV_PATH}/bin/pytest"
+                }
             }
         }
 
